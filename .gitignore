@@ -1,2 +1,27 @@
-Serveur/node_modules
 Client/node_modules
+
+# Logs
+Serveur/logs
+Serveur/*.log
+Serveur/npm-debug.log*
+
+# Coverage directory used by tools like istanbul
+Serveur/coverage
+
+# nyc test coverage
+Serveur/.nyc_output
+
+# Dependency directories
+Serveur/node_modules/
+
+# Optional npm cache directory
+Serveur/.npm
+
+# Optional eslint cache
+Serveur/.eslintcache
+
+# dotenv environment variables file
+Serveur/.env
+
+#
+Serveur/examples
