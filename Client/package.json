@@ -1,0 +1,13 @@
+{
+  "name": "ga-client",
+  "version": "1.0.0",
+  "description": "Github analytics client",
+  "scripts": {
+    "start": "live-server --host=localhost"
+  },
+  "author": "paulnta",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.0"
+  }
+}
