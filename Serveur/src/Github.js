@@ -48,6 +48,16 @@ class Github {
     return this.request(`/users/${username}/repos`);
   }
 
+  commits(username, repoName, page) {
+    return this.request(`/repos/${username}/${repoName}/commits?page=${page}`);
+  }
+
+  contributors(username, repoName) {
+    console.log(username);
+    console.log(repoName);
+    return this.request(`/repos/${username}/${repoName}/stats/contributors?per_page=100`)
+  }
+
   repoLanguages(repoName) {
     return this.request(`/repos/${repoName}/languages`);
   }

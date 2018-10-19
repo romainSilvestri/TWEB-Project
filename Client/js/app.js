@@ -1,5 +1,5 @@
 // https://medium.freecodecamp.org/environment-settings-in-javascript-apps-c5f9744282b6
-const baseUrl =  window.location.hostname === 'localhost'
+const baseUrl = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
   : 'https://heig-vd-ga-server.herokuapp.com';
 
@@ -83,15 +83,118 @@ function updatePlaceholder(content, className = 'text-secondary') {
   placeholder.innerHTML = content;
 }
 
+function getAllRepos(username) {
+  return fetch(`${baseUrl}/users/${username}/repos`)
+    .then(res => res.json());
+}
+
+function getAllCommits(username, repo) {
+  return fetch(`${baseUrl}/users/${username}/${repo}/commits`)
+    .then(res => res.json());
+}
+
+function fail() {
+  console.log('fail');
+}
+
+
+function getFrequencyOfCommits(username) {
+  frequencies = [];
+  getAllRepos(username)
+    .then(repos => {
+      const promises = [];
+      const repoName = [];
+
+      repos.forEach(repo => promises.push(getNumberOfCommits(username, repo.name)));
+
+      for (let i = 0; i < repos.length; i++) {
+        promises.push(getNumberOfCommits(username, repos[i].name));
+        repoName.push(repos[i].name);
+      }
+
+      Promise.all(promises).then(data => {
+        const promisesCommits = [];
+
+        for (let i = 0; i < data.length; i++) {
+          promisesCommits.push([getFirstCommit(username, repoName[i]), getLastCommit(username, repoName[i], data[i]), data[i]]);
+        }
+      });
+      Promise.all(promisesCommits).then(Commits =>{
+        Commits.forEach(element => {
+          let d1 = new Date(element[0].commit.author.date);
+          let d2 = new Date(element[1].commit.author.date);
+          let d1_ms = d1.getTime();
+          let d2_ms = d2.getTime();
+          let frequency = element[2] * 86400000 / (d1_ms - d2_ms);
+        });
+        frequencies.push(frequency);
+      })
+    });
+    console.log(frequencies);
+  return frequencies;
+}
+
+function getContributors(username, repoName) {
+  console.log(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=100`);
+  return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=100`)
+    .then(res => res.json());
+}
+
+function getNumberOfCommits(username, repoName) {
+  return new Promise(function (resolve, reject) {
+    let result = getContributors(username, repoName)
+      .then(result => {
+        console.log(result);
+        for (let i = 0; i < result.length; i++) {
+          if (result[i].author.login === username) {
+            resolve(result[i].total);
+          }
+        }
+        resolve(0);
+      });
+  });
+}
+
+function getCommitsPage(username, repoName, pageNumber) {
+  return fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}`)
+    .then(res => res.json());
+}
+
+function getFirstCommit(username, repoName) {
+  return new Promise(function (resolve, reject) {
+    let result = getCommitsPage(username, repoName, 1)
+      .then(result => {
+        console.log(result);
+        resolve(result[0]);
+      });
+  });
+}
+
+function getLastCommit(username, repoName, numberOfCommits) {
+  return new Promise(function (resolve, reject) {
+    let pageNumber = (numberOfCommits / 30) + 1;
+    let indexLastCommit = (numberOfCommits % 30) - 1;
+    if (indexLastCommit < 0) {
+      indexLastCommit = 30;
+      pageNumber--;
+    }
+    fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}`)
+      .then(res => {
+        result = res.json();
+        resolve(result[indexLastCommit]);
+      });
+  });
+}
+
 function handleSearch(username) {
   updatePlaceholder('Loading...');
-
   return Promise.all([
     getUser(username),
     getLanguages(username),
+    getFrequencyOfCommits(username),
     getGithubColors(),
   ])
-    .then(([user, languages, colors]) => {
+    .then(([user, languages, frequency, colors]) => {
       updatePlaceholder('');
 
       const labels = Object.keys(languages);

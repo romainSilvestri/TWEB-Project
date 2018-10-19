@@ -7,7 +7,6 @@ const utils = require('./src/utils');
 
 const app = express();
 const port = process.env.PORT || 3000;
-console.log(process.env.OAUTH_TOKEN);
 const client = new Github({ token: process.env.OAUTH_TOKEN });
 
 // Enable CORS for the client app
@@ -19,9 +18,33 @@ app.get('/users/:username', (req, res, next) => { // eslint-disable-line no-unus
     .catch(next);
 });
 
+app.get('/users/:username/repos', (req, res, next) => { // eslint-disable-line no-unused-vars
+  client.repos(req.params.username)
+    .then(user => res.send(user))
+    .catch(next);
+});
+
+app.get('/users/:username/:repos/commits?page=:pageNumber', (req, res, next) => { // eslint-disable-line no-unused-vars
+  client.commits(req.params.username, req.params.repos, req.params.pageNumber)
+    .then(user => res.send(user))
+    .catch(next);
+});
+
+app.get('/repos/:username/:repos/commits', (req, res, next) => { // eslint-disable-line no-unused-vars
+  client.commits(req.params.username, req.params.repos, 0)
+    .then(user => res.send(user))
+    .catch(next);
+});
+
 app.get('/languages/:username', (req, res, next) => { // eslint-disable-line no-unused-vars
   client.userLanguages(req.params.username)
     .then(utils.getReposLanguagesStats)
+    .then(stats => res.send(stats))
+    .catch(next);
+});
+
+app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { // eslint-disable-line no-unused-vars
+  client.contributors(req.params.username, req.params.repoName)
     .then(stats => res.send(stats))
     .catch(next);
 });
