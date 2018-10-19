@@ -122,8 +122,6 @@ function getFrequencyOfCommits(username) {
           promisesCommits.push([getFirstCommit(username, repoName[i-removedElem]), getLastCommit(username, repoName[i-removedElem], data[i]), data[i]]);
         }
 
-        //Promise.all(promiseArrArr.map(Promise.all, Promise)).then(arrArr => …)
-        //const promise4All = Promise.all(promiseArray.map(Promise.all.bind(Promise)))
         console.log(promisesCommits.map);
       Promise.all(promisesCommits.map(Promise.all, Promise)).then(Commits =>{
         console.log(Commits);
@@ -153,7 +151,6 @@ function getNumberOfCommits(username, repoName) {
   return new Promise(function (resolve, reject) {
     getContributors(username, repoName)
       .then(result => {
-        console.log(result);
         for (let i = 0; i < result.length; i++) {
           if (result[i].author.login === username) {
             resolve(result[i].total);
@@ -173,7 +170,6 @@ function getFirstCommit(username, repoName) {
   return new Promise(function (resolve, reject) {
     let result = getCommitsPage(username, repoName, 1)
       .then(result => {
-        console.log(result);
         resolve(result[0]);
       });
   });
