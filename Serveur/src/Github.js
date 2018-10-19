@@ -44,18 +44,17 @@ class Github {
     return this.request(`/users/${username}`);
   }
 
-  repos(username) {
-    return this.request(`/users/${username}/repos`);
+  repos(username, per_page, pageNumber) {
+    return this.request(`/users/${username}/repos?per_page=${per_page}&page=${pageNumber}`);
   }
 
-  commits(username, repoName, page) {
-    return this.request(`/repos/${username}/${repoName}/commits?page=${page}`);
+  commits(username, per_page, repoName, page) {
+    return this.request(`/repos/${username}/${repoName}/commits?per_page=${per_page}&page=${page}`);
   }
 
+  //contributors doesn't support pagination, this will only return the first 100 contributors
   contributors(username, repoName) {
-    console.log(username);
-    console.log(repoName);
-    return this.request(`/repos/${username}/${repoName}/stats/contributors?per_page=100`)
+    return this.request(`/repos/${username}/${repoName}/stats/contributors`)
   }
 
   repoLanguages(repoName) {

@@ -19,19 +19,13 @@ app.get('/users/:username', (req, res, next) => { // eslint-disable-line no-unus
 });
 
 app.get('/users/:username/repos', (req, res, next) => { // eslint-disable-line no-unused-vars
-  client.repos(req.params.username)
-    .then(user => res.send(user))
-    .catch(next);
-});
-
-app.get('/users/:username/:repos/commits?page=:pageNumber', (req, res, next) => { // eslint-disable-line no-unused-vars
-  client.commits(req.params.username, req.params.repos, req.params.pageNumber)
+  client.repos(req.params.username, req.query.per_page, req.query.page)
     .then(user => res.send(user))
     .catch(next);
 });
 
 app.get('/repos/:username/:repos/commits', (req, res, next) => { // eslint-disable-line no-unused-vars
-  client.commits(req.params.username, req.params.repos, 0)
+  client.commits(req.params.username, req.query.per_page, req.params.repos, req.query.page)
     .then(user => res.send(user))
     .catch(next);
 });
@@ -45,7 +39,7 @@ app.get('/languages/:username', (req, res, next) => { // eslint-disable-line no-
 
 app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { // eslint-disable-line no-unused-vars
   client.contributors(req.params.username, req.params.repoName)
-    .then(stats => res.send(stats))
+    .then(stats => {res.send(stats)})
     .catch(next);
 });
 
@@ -58,6 +52,7 @@ app.use((req, res, next) => {
 
 // Error handler
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  console.log(req);
   console.error(err);
   res.status(err.status || 500);
   res.send(err.message);

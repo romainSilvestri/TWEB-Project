@@ -82,9 +82,34 @@ function updatePlaceholder(content, className = 'text-secondary') {
   placeholder.className = className;
   placeholder.innerHTML = content;
 }
-
+/* GET only the first 30 repos
 function getAllRepos(username) {
   return fetch(`${baseUrl}/users/${username}/repos`)
+    .then(res => res.json());
+}
+*/
+
+//TEST, get all the repos
+function getAllRepos(username, resultArr, pageNumber = 1) {
+  return new Promise(function (resolve, reject) {
+    getPageOfRepos(username, pageNumber)
+      .then(result => {
+        if(result.length === 0){
+          resolve(resultArr);
+        }
+        else if(result.length < 100){
+          resolve(resultArr.concat(result));
+        }
+        else{
+          resultArr = resultArr.concat(result);
+          resolve(getAllRepos(username, resultArr, pageNumber + 1));
+        }
+      });
+  });
+}
+
+function getPageOfRepos(username, pageNumber){
+  return fetch(`${baseUrl}/users/${username}/repos?page=${pageNumber}&per_page=${100}`)
     .then(res => res.json());
 }
 
@@ -99,13 +124,17 @@ function fail() {
 
 
 function getFrequencyOfCommits(username) {
-  frequencies = [];
-  getAllRepos(username)
+  let frequencies = [];
+  let reposJSON = [];
+  getAllRepos(username, reposJSON)
     .then(repos => {
       const promises = [];
       const repoName = [];
 
       for (let i = 0; i < repos.length; i++) {
+        if(repos[i].language === null){
+          continue;
+        }
         promises.push(getNumberOfCommits(username, repos[i].name));
         repoName.push(repos[i].name);
       }
@@ -147,22 +176,40 @@ function getContributors(username, repoName) {
     .then(res => res.json());
 }
 
-function getNumberOfCommits(username, repoName) {
+function getCommitsOfContributors(username, repoName) {
   return new Promise(function (resolve, reject) {
-    getContributors(username, repoName)
+    getPageOfContributors(username, repoName)
       .then(result => {
-        for (let i = 0; i < result.length; i++) {
-          if (result[i].author.login === username) {
-            resolve(result[i].total);
-          }
+        if(result.length === 0){
+          resolve(0);
         }
-        resolve(0);
+        else{
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].author.login === username) {
+              resolve(result[i].total);
+            }
+          }
+            resolve(0)
+        }
       });
   });
 }
 
+function getPageOfContributors(username, repoName, pageNumber){
+  return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?page=${pageNumber}&per_page=${100}`)
+    .then(res => res.json());
+}
+
+
+function getNumberOfCommits(username, repoName) {
+  return new Promise(function (resolve, reject) {
+    getCommitsOfContributors(username, repoName)
+      .then(result => resolve(result));
+  });
+}
+
 function getCommitsPage(username, repoName, pageNumber) {
-  return fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}`)
+  return fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}&per_page=${100}`)
     .then(res => res.json());
 }
 
@@ -177,13 +224,13 @@ function getFirstCommit(username, repoName) {
 
 function getLastCommit(username, repoName, numberOfCommits) {
   return new Promise(function (resolve, reject) {
-    let pageNumber = Math.floor(numberOfCommits / 30) + 1;
-    let indexLastCommit = (numberOfCommits % 30) - 1;
+    let pageNumber = Math.floor(numberOfCommits / 100) + 1;
+    let indexLastCommit = (numberOfCommits % 100) - 1;
     if (indexLastCommit < 0) {
       indexLastCommit = 30;
       pageNumber--;
     }
-    fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}`)
+    fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}&per_page=${100}`)
       .then(res => {
         res.json().then(result => {
          resolve(result[indexLastCommit]);
