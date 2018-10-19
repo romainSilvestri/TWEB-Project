@@ -105,8 +105,6 @@ function getFrequencyOfCommits(username) {
       const promises = [];
       const repoName = [];
 
-      repos.forEach(repo => promises.push(getNumberOfCommits(username, repo.name)));
-
       for (let i = 0; i < repos.length; i++) {
         promises.push(getNumberOfCommits(username, repos[i].name));
         repoName.push(repos[i].name);
@@ -115,23 +113,34 @@ function getFrequencyOfCommits(username) {
       Promise.all(promises).then(data => {
         const promisesCommits = [];
 
-        for (let i = 0; i < data.length; i++) {
-          promisesCommits.push([getFirstCommit(username, repoName[i]), getLastCommit(username, repoName[i], data[i]), data[i]]);
+        for (let i = 0, removedElem = 0; i < data.length; i++) {
+          if(data[i] === 0 || data[i] === 1){
+            repoName.splice(i-removedElem,1);
+            removedElem++;
+            continue;
+          }
+          promisesCommits.push([getFirstCommit(username, repoName[i-removedElem]), getLastCommit(username, repoName[i-removedElem], data[i]), data[i]]);
         }
-      });
-      Promise.all(promisesCommits).then(Commits =>{
-        Commits.forEach(element => {
-          let d1 = new Date(element[0].commit.author.date);
-          let d2 = new Date(element[1].commit.author.date);
+
+        //Promise.all(promiseArrArr.map(Promise.all, Promise)).then(arrArr => …)
+        //const promise4All = Promise.all(promiseArray.map(Promise.all.bind(Promise)))
+        console.log(promisesCommits.map);
+      Promise.all(promisesCommits.map(Promise.all, Promise)).then(Commits =>{
+        console.log(Commits);
+        for (let i = 0; i < Commits.length; i++){
+          let d1 = new Date(Commits[i][0].commit.author.date);
+          let d2 = new Date(Commits[i][1].commit.author.date);
           let d1_ms = d1.getTime();
           let d2_ms = d2.getTime();
-          let frequency = element[2] * 86400000 / (d1_ms - d2_ms);
-        });
-        frequencies.push(frequency);
+          let frequency = Commits[i][2] * 86400000 / (d1_ms - d2_ms);
+          frequencies.push(frequency);
+          console.log(frequencies);
+        }
+        return frequencies;
       })
     });
-    console.log(frequencies);
-  return frequencies;
+    
+  });
 }
 
 function getContributors(username, repoName) {
@@ -142,7 +151,7 @@ function getContributors(username, repoName) {
 
 function getNumberOfCommits(username, repoName) {
   return new Promise(function (resolve, reject) {
-    let result = getContributors(username, repoName)
+    getContributors(username, repoName)
       .then(result => {
         console.log(result);
         for (let i = 0; i < result.length; i++) {
@@ -172,7 +181,7 @@ function getFirstCommit(username, repoName) {
 
 function getLastCommit(username, repoName, numberOfCommits) {
   return new Promise(function (resolve, reject) {
-    let pageNumber = (numberOfCommits / 30) + 1;
+    let pageNumber = Math.floor(numberOfCommits / 30) + 1;
     let indexLastCommit = (numberOfCommits % 30) - 1;
     if (indexLastCommit < 0) {
       indexLastCommit = 30;
@@ -180,8 +189,9 @@ function getLastCommit(username, repoName, numberOfCommits) {
     }
     fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}`)
       .then(res => {
-        result = res.json();
-        resolve(result[indexLastCommit]);
+        res.json().then(result => {
+         resolve(result[indexLastCommit]);
+        });
       });
   });
 }
