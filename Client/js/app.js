@@ -82,12 +82,6 @@ function updatePlaceholder(content, className = 'text-secondary') {
   placeholder.className = className;
   placeholder.innerHTML = content;
 }
-/* GET only the first 30 repos
-function getAllRepos(username) {
-  return fetch(`${baseUrl}/users/${username}/repos`)
-    .then(res => res.json());
-}
-*/
 
 //TEST, get all the repos
 function getAllRepos(username, resultArr, pageNumber = 1) {
@@ -118,25 +112,25 @@ function getAllCommits(username, repo) {
     .then(res => res.json());
 }
 
-function fail() {
-  console.log('fail');
-}
-
-
+/**
+ * this function return an array of array containing a language and a frequencies of commits per day
+ * @param {*} username 
+ */
 function getFrequencyOfCommits(username) {
+  return new Promise(function (resolve, reject) {
   let frequencies = [];
   let reposJSON = [];
   getAllRepos(username, reposJSON)
     .then(repos => {
       const promises = [];
-      const repoName = [];
+      const repoNameAndLanguage = [];
 
       for (let i = 0; i < repos.length; i++) {
         if(repos[i].language === null){
           continue;
         }
         promises.push(getNumberOfCommits(username, repos[i].name));
-        repoName.push(repos[i].name);
+        repoNameAndLanguage.push([repos[i].name, repos[i].language]);
       }
 
       Promise.all(promises).then(data => {
@@ -144,30 +138,64 @@ function getFrequencyOfCommits(username) {
 
         for (let i = 0, removedElem = 0; i < data.length; i++) {
           if(data[i] === 0 || data[i] === 1){
-            repoName.splice(i-removedElem,1);
+            repoNameAndLanguage.splice(i-removedElem,1);
             removedElem++;
             continue;
           }
-          promisesCommits.push([getFirstCommit(username, repoName[i-removedElem]), getLastCommit(username, repoName[i-removedElem], data[i]), data[i]]);
+          promisesCommits.push([getFirstCommit(username, repoNameAndLanguage[i-removedElem][0]), getLastCommit(username, repoNameAndLanguage[i-removedElem][0], data[i]), data[i], repoNameAndLanguage[i-removedElem][1]]);
         }
 
-        console.log(promisesCommits.map);
       Promise.all(promisesCommits.map(Promise.all, Promise)).then(Commits =>{
-        console.log(Commits);
         for (let i = 0; i < Commits.length; i++){
+          const ms_per_day = 24*60*60*1000;
           let d1 = new Date(Commits[i][0].commit.author.date);
           let d2 = new Date(Commits[i][1].commit.author.date);
           let d1_ms = d1.getTime();
           let d2_ms = d2.getTime();
-          let frequency = Commits[i][2] * 86400000 / (d1_ms - d2_ms);
-          frequencies.push(frequency);
-          console.log(frequencies);
+          if ((d1_ms - d2_ms) >= ms_per_day){
+           let frequency = Commits[i][2] * ms_per_day / (d1_ms - d2_ms);
+           frequencies.push([Commits[i][3], frequency]);
+          }
         }
-        return frequencies;
+        frequencies = mergeArray(frequencies);
+        for(let i = 0; i < frequencies.length; i++){
+          frequencies[i] = averageFrequency(frequencies[i]);
+        }
+        resolve(frequencies);
       })
     });
     
   });
+});
+}
+
+//function that take array of array of two elements and merge array that have the same first element
+function mergeArray(arr){
+  retArray = arr
+  l = arr.length;
+  for(let i = 0; i < l; i++){
+    for(let j = i+1; j < l; j++){
+      if (retArray[i][0] === retArray[j][0]){
+        retArray[i].push(retArray[j][1]);
+        retArray.splice(j,1);
+        j--;
+        l--;
+      }
+    }
+  }
+  return retArray;
+}
+
+//function that return an array containing the first element and the mean of all other elements of the parameter.
+function averageFrequency(arr){
+  retArray = [];
+  retArray.push(arr[0]);
+  sumFrequency = 0;
+  for(let i = 1; i < arr.length; i++){
+    sumFrequency += arr[i];
+  }
+  retArray.push(sumFrequency / (arr.length - 1))
+  return retArray;
 }
 
 function getContributors(username, repoName) {
@@ -227,7 +255,7 @@ function getLastCommit(username, repoName, numberOfCommits) {
     let pageNumber = Math.floor(numberOfCommits / 100) + 1;
     let indexLastCommit = (numberOfCommits % 100) - 1;
     if (indexLastCommit < 0) {
-      indexLastCommit = 30;
+      indexLastCommit = 100;
       pageNumber--;
     }
     fetch(`${baseUrl}/repos/${username}/${repoName}/commits?page=${pageNumber}&per_page=${100}`)
@@ -243,15 +271,16 @@ function handleSearch(username) {
   updatePlaceholder('Loading...');
   return Promise.all([
     getUser(username),
-    getLanguages(username),
     getFrequencyOfCommits(username),
     getGithubColors(),
   ])
-    .then(([user, languages, frequency, colors]) => {
+    .then(([user, frequencies, colors]) => {
       updatePlaceholder('');
 
-      const labels = Object.keys(languages);
-      const data = labels.map(label => languages[label]);
+      let labels = [];
+      let data = [];
+      frequencies.forEach(element => {labels.push(element[0])});
+      frequencies.forEach(element => {data.push(element[1])});
       const backgroundColor = labels.map(label => {
         const color = colors[label] ? colors[label].color : null
         return color || '#000';
