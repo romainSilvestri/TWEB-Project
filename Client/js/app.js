@@ -125,13 +125,13 @@ function getFrequencyOfCommits(username) {
       const promises = [];
       const repoNameAndLanguage = [];
 
-      for (let i = 0; i < repos.length; i++) {
+      for(let i = 0; i < repos.length; i++){
         if(repos[i].language === null){
           continue;
         }
         promises.push(getNumberOfCommits(username, repos[i].name));
         repoNameAndLanguage.push([repos[i].name, repos[i].language]);
-      }
+      };
 
       Promise.all(promises).then(data => {
         const promisesCommits = [];
@@ -146,21 +146,28 @@ function getFrequencyOfCommits(username) {
         }
 
       Promise.all(promisesCommits.map(Promise.all, Promise)).then(Commits =>{
-        for (let i = 0; i < Commits.length; i++){
+        //Commits is an object as following : [ [last_commit, first_commit, total_of_commits, language_of_the_repo], ...]
+        Commits.forEach(element =>{
           const ms_per_day = 24*60*60*1000;
-          let d1 = new Date(Commits[i][0].commit.author.date);
-          let d2 = new Date(Commits[i][1].commit.author.date);
+          let d1 = new Date(element[0].commit.author.date);
+          let d2 = new Date(element[1].commit.author.date);
           let d1_ms = d1.getTime();
           let d2_ms = d2.getTime();
           if ((d1_ms - d2_ms) >= ms_per_day){
-           let frequency = Commits[i][2] * ms_per_day / (d1_ms - d2_ms);
-           frequencies.push([Commits[i][3], frequency]);
+           let frequency = element[2] * ms_per_day / (d1_ms - d2_ms);
+           frequencies.push([element[3], frequency]);
           }
-        }
+        });
+        let globalFrequency = 0;
+        frequencies.forEach(element => {
+          globalFrequency += element[1];
+        });
+        globalFrequency = globalFrequency / frequencies.length;
         frequencies = mergeArray(frequencies);
         for(let i = 0; i < frequencies.length; i++){
           frequencies[i] = averageFrequency(frequencies[i]);
         }
+        frequencies.unshift(["global", globalFrequency]);
         resolve(frequencies);
       })
     });
@@ -267,7 +274,7 @@ function getLastCommit(username, repoName, numberOfCommits) {
   });
 }
 
-function handleSearch(username) {
+function handleSearch(username, checkDB = true) {
   updatePlaceholder('Loading...');
   return Promise.all([
     getUser(username),
