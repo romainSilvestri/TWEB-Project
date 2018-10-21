@@ -312,31 +312,19 @@ function handleSearch(username, checkDB = true) {
     })
 }
 
-searchForm.addEventListener('submit', function (e) {
-  e.preventDefault();
-  const username = this.elements['username'].value;
-  if (!username) {
-    return;
-  }
-  handleSearch(username);
-});
+function setCheckDb(val) {
+  searchForm.elements['checkDb'].value = val;
+}
 
-search.addEventListener('touchend', function (e) {
+searchForm.addEventListener('click', function (e) {
   e.preventDefault();
   const username = this.elements['username'].value;
+  const checkDb = this.elements['checkDb'].value === "0" ? true : false; 
+  console.log(checkDb);
   if (!username) {
     return;
   }
-  handleSearch(username);
-});
-
-update.addEventListener('touchend', function (e) {
-  e.preventDefault();
-  const username = this.elements['username'].value;
-  if (!username) {
-    return;
-  }
-  handleSearch(username, false);
+  handleSearch(username, checkDb);
 });
 
 handleSearch(defaultSearch);

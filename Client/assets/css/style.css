@@ -611,7 +611,7 @@ input:-ms-input-placeholder {
     width:100%;
     overflow: hidden;
 }
-.register .single_login{
+.domainsearce .single_login{
     background: #21424a;
 }
 .single_register{
@@ -1116,3 +1116,4 @@ i:hover{
 	text-decoration: none;
 
 }
+
