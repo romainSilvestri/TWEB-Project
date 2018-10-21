@@ -6,6 +6,8 @@ const baseUrl = window.location.hostname === 'localhost'
 
 const defaultSearch = 'octocat';
 const searchForm = document.getElementById('search-form');
+const search = document.getElementById('search');
+const update = document.getElementById('update');
 let chart = null;
 
 function getUser(username) {
@@ -113,7 +115,7 @@ function getAllCommits(username, repo) {
 }
 
 /**
- * this function return an array of array containing a language and a frequencies of commits per day
+ * this function return an array of json containing a language and a frequencies of commits per day
  * @param {*} username 
  */
 function getFrequencyOfCommits(username) {
@@ -168,7 +170,15 @@ function getFrequencyOfCommits(username) {
           frequencies[i] = averageFrequency(frequencies[i]);
         }
         frequencies.unshift(["global", globalFrequency]);
-        resolve(frequencies);
+        let keys = ["language", "frequency"];
+        let objects = frequencies.map(array => {
+          let object = {};
+        
+          keys.forEach((key, i) => object[key] = array[i]);
+          
+          return object;
+        });
+        resolve(objects);
       })
     });
     
@@ -286,8 +296,8 @@ function handleSearch(username, checkDB = true) {
 
       let labels = [];
       let data = [];
-      frequencies.forEach(element => {labels.push(element[0])});
-      frequencies.forEach(element => {data.push(element[1])});
+      frequencies.forEach(element => {labels.push(element.language)});
+      frequencies.forEach(element => {data.push(element.frequency)});
       const backgroundColor = labels.map(label => {
         const color = colors[label] ? colors[label].color : null
         return color || '#000';
@@ -309,6 +319,24 @@ searchForm.addEventListener('submit', function (e) {
     return;
   }
   handleSearch(username);
+});
+
+search.addEventListener('touchend', function (e) {
+  e.preventDefault();
+  const username = this.elements['username'].value;
+  if (!username) {
+    return;
+  }
+  handleSearch(username);
+});
+
+update.addEventListener('touchend', function (e) {
+  e.preventDefault();
+  const username = this.elements['username'].value;
+  if (!username) {
+    return;
+  }
+  handleSearch(username, false);
 });
 
 handleSearch(defaultSearch);
