@@ -105,59 +105,16 @@
         </section><!-- End of Banner Section -->
 
         <section id="domain" class="domainsearce">
-          <!--
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-10 col-sm-offset-1">
-						<div class="main_somainsearrce">
-							<div class="head_title text-center wow fadeInDown" data-wow-duration="1s">
-								<h2>Would you like to buy a new domain ?</h2>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse auctor mauris ac nulla interdum, id molestier.</p>
-							</div>
-
-							<div class="serceoption wow fadeIn" data-wow-duration="1.5s">
-								<div class="input-group input-group-lg">
-									<span class="input-group-addon">www.</span>
-									<input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
-									<span class="input-group-addon">.com 
-										<span class="caret"></span> 
-									</span> 
-								</div>
-							</div>
-
-							<div class="sercelist wow fadeIn" data-wow-duration="2s">
-								<div class="single_dotcom_serce text-center">
-									
-									<ul class="list-inline">
-										<li><p>.com</p></li>
-										<li><p>1 yer</p></li>
-										<li><p>$9.00 USD</p></li>
-										<li><p>Transfer Price No</p></li>
-									</ul>
-									
-									<ul class="list-inline no-border">
-										<li><p>.net</p></li>
-										<li><p>1 yer</p></li>
-										<li><p>$9.00 USD</p></li>
-										<li><p>Transfer Price No</p></li>
-									</ul>
-									
-								   
-								 </div>    
-							</div> 
-
-						</div>
-					</div>
-                </div>
-            </div>
-          -->
-
+          <br/>
+          <br/>
           <form class="search-bar" id="search-form" name="search-form">
-              <input class="search-input form-control" spellcheck="false" autocomplete="off" placeholder="Search a github username"
-                type="text" name="username" />
+            <div class="search-input">
+              <input class="search-input form-control" spellcheck="false" autocomplete="off" placeholder="Enter a github username"
+                type="text" name="username" style=" text-align: center"/></div>
                 <input type="hidden" value = "0" name="checkDb">
+                <br/>
                 <div class="container-fullwidth">
-                    <div class="row text-center" style="cursor:pointer">
+                    <div class="text-center" style="cursor:pointer">
                         <div class="col-sm-6 col-xs-6 no-padding" onclick="setCheckDb('0');">
                             <div class="single_register single_login"> 
                                 <a id="search">Search</a>
@@ -172,16 +129,17 @@
                 </div>
             </form>
             
-            <div class="card container">
+            <div>
 
               <div id="placeholder"></div>
         
+              <div class="row">
               <!-- Profile -->
-              <div class="profile-container">
-                <div class="profile-picture">
-                  <img id="user-avatar" alt="avatar of the user" />
+              <div class="div_center">
+                <div>
+                  <img id="user-avatar" alt="avatar of the user" class="rounded-circle" />
                 </div>
-                <div class="profile-body">
+                <div>
                   <h2 id="user-name" class="headline"></h2>
                   <span id="user-login" class="body-1 text-secondary"></h4>
                 </div>
@@ -190,11 +148,11 @@
         
         
               <!-- Languages chart -->
-              <div class="chart-container">
-                <canvas id="chart-languages"></canvas>
+              <div class="div_center">
+                <canvas id="chart-frequencies" height=600 width = 600></canvas>
               </div>
               <!-- End Languages chart -->
-        
+            </div>
             </div>
             
         </section>

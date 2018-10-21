@@ -26,8 +26,10 @@ function getGithubColors() {
 }
 
 function updateChart({ labels, data, backgroundColor }) {
-  const chartLanguages = document.getElementById('chart-languages');
+  const chartLanguages = document.getElementById('chart-frequencies');
   const ctx = chartLanguages.getContext('2d');
+  ctx.responsive = true;
+  ctx.maintainAspectRatio = false;
   const options = {
     type: 'bar',
     data: {
@@ -39,7 +41,7 @@ function updateChart({ labels, data, backgroundColor }) {
     },
     options: {
       legend: {
-        display: false
+        display: true
       },
       scales: {
         xAxes: [{
