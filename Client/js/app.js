@@ -40,8 +40,14 @@ function updateChart({ labels, data, backgroundColor }) {
       }],
     },
     options: {
+      title: {
+        display : true,
+        fontColor : 'black',
+        fontSize : 30,
+        text : 'Commits/day depending on the language'
+      },
       legend: {
-        display: true
+        display: false
       },
       scales: {
         xAxes: [{
