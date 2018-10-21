@@ -2,12 +2,24 @@
 require('dotenv/config');
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const Github = require('./src/Github');
 const utils = require('./src/utils');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const client = new Github({ token: process.env.OAUTH_TOKEN });
+
+mongoose.connect('mongodb://localhost:27017/userdata');
+const userSchema = new mongoose.Schema({
+  avatar_url: { type: String, required: true },
+  frequencies: [{
+    name: { type: String, require: true },
+    frequency: { type: Number, require: true },
+  }],
+});
+
+const DataModel = mongoose.model('FreqData', userSchema);
 
 // Enable CORS for the client app
 app.use(cors());
@@ -39,8 +51,19 @@ app.get('/languages/:username', (req, res, next) => { // eslint-disable-line no-
 
 app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { // eslint-disable-line no-unused-vars
   client.contributors(req.params.username, req.params.repoName)
-    .then(stats => {res.send(stats)})
+    .then(stats => { res.send(stats)})
     .catch(next);
+});
+
+app.post('/add', (req, res) => {
+  const data = new DataModel(req.body);
+  data.save()
+    .then(item => {
+      res.send('item saved to database');
+    })
+    .catch(err => {
+      res.status(400).send('unable to save to database');
+    });
 });
 
 // Forward 404 to error handler
