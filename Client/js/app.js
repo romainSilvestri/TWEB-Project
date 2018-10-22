@@ -292,6 +292,27 @@ function getLastCommit(username, repoName, numberOfCommits) {
   });
 }
 
+function sendToDb(username, freq) {
+  return new Promise(function (resolve, reject) {
+      fetch(`${bastUrl}/add`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: {
+          username: username,
+          frequencies: [{
+            name: 'test',
+            frequency: freq
+          }]
+        }
+      })
+      .then(function(res){console.log(res)})
+      .catch(function(res){ console.log(res)})
+    });
+  }
+
 function handleSearch(username, checkDB = true) {
   updatePlaceholder('Loading...');
   return Promise.all([
@@ -313,6 +334,8 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
+      sendToDb('test', 2).then(console.log('sent'));
+
     })
     .catch(err => {
       updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');

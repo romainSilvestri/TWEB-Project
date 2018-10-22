@@ -12,7 +12,7 @@ const client = new Github({ token: process.env.OAUTH_TOKEN });
 
 mongoose.connect('mongodb://localhost:27017/userdata');
 const userSchema = new mongoose.Schema({
-  avatar_url: { type: String, required: true },
+  username: { type: String, required: true },
   frequencies: [{
     name: { type: String, require: true },
     frequency: { type: Number, require: true },
@@ -55,7 +55,8 @@ app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { /
     .catch(next);
 });
 
-app.post('/add', (req, res) => {
+app.get('/add', (req, res) => {
+  console.log('received');
   const data = new DataModel(req.body);
   data.save()
     .then(item => {
