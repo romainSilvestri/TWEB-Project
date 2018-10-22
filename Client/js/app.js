@@ -298,14 +298,11 @@ function sendToDb(username, login, freq) {
           'Content-Type': 'application/json'
         },
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           username: username,
           userlogin : login,
-          frequencies: [{
-            name: 'test',
-            frequency: freq
-          }]
-        }
+          frequencies: freq
+        })
       })
       .then(function(res){console.log(res)})
       .catch(function(res){ console.log(res)})

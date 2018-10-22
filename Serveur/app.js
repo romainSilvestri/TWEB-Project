@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const Github = require('./src/Github');
 const utils = require('./src/utils');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,7 +14,7 @@ const client = new Github({ token: process.env.OAUTH_TOKEN });
 //mongoose.connect('mongodb://user1:<user1>@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true');
 
 const dbURI =
- "mongodb+srv://twebkoppsilvestri-y2dgh.mongodb.net/TWEB_DB";
+ "mongodb://user1:user1@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true";
 
 const options = {
   useNewUrlParser: true,
@@ -31,13 +32,18 @@ mongoose.connect(dbURI, options).then(
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
+  userlogin:{ type: String, required: true },
   frequencies: [{
-    name: { type: String, require: true },
+    language: { type: String, require: true },
     frequency: { type: Number, require: true },
   }],
 });
 
 const DataModel = mongoose.model('FreqData', userSchema);
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Enable CORS for the client app
 app.use(cors());
