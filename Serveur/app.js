@@ -14,7 +14,7 @@ const client = new Github({ token: process.env.OAUTH_TOKEN });
 //mongoose.connect('mongodb://user1:<user1>@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true');
 
 const dbURI =
- "mongodb://user1:user1@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true";
+  "mongodb://user1:user1@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true";
 
 const options = {
   useNewUrlParser: true,
@@ -22,17 +22,16 @@ const options = {
 };
 
 mongoose.connect(dbURI, options).then(
- () => {
-   console.log("Database connection established!");
- },
- err => {
-   console.log("Error connecting Database instance due to: ", err);
- }
+  () => {
+    console.log("Database connection established!");
+  },
+  err => {
+    console.log("Error connecting Database instance due to: ", err);
+  }
 );
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
-  userlogin:{ type: String, required: true },
   frequencies: [{
     language: { type: String, require: true },
     frequency: { type: Number, require: true },
@@ -75,7 +74,7 @@ app.get('/languages/:username', (req, res, next) => { // eslint-disable-line no-
 
 app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { // eslint-disable-line no-unused-vars
   client.contributors(req.params.username, req.params.repoName)
-    .then(stats => { res.send(stats)})
+    .then(stats => { res.send(stats) })
     .catch(next);
 });
 
