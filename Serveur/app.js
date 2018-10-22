@@ -10,7 +10,25 @@ const app = express();
 const port = process.env.PORT || 3000;
 const client = new Github({ token: process.env.OAUTH_TOKEN });
 
-mongoose.connect('mongodb://localhost:27017/userdata');
+//mongoose.connect('mongodb://user1:<user1>@twebkoppsilvestri-shard-00-00-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-01-y2dgh.mongodb.net:27017,twebkoppsilvestri-shard-00-02-y2dgh.mongodb.net:27017/test?ssl=true&replicaSet=TWEBKoppSilvestri-shard-0&authSource=admin&retryWrites=true');
+
+const dbURI =
+ "mongodb+srv://twebkoppsilvestri-y2dgh.mongodb.net/TWEB_DB";
+
+const options = {
+  useNewUrlParser: true,
+  dbName: "data"
+};
+
+mongoose.connect(dbURI, options).then(
+ () => {
+   console.log("Database connection established!");
+ },
+ err => {
+   console.log("Error connecting Database instance due to: ", err);
+ }
+);
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   frequencies: [{
@@ -55,7 +73,7 @@ app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { /
     .catch(next);
 });
 
-app.get('/add', (req, res) => {
+app.post('/add', (req, res) => {
   console.log('received');
   const data = new DataModel(req.body);
   data.save()

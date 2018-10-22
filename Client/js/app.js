@@ -181,9 +181,7 @@ function getFrequencyOfCommits(username) {
         let keys = ["language", "frequency"];
         let objects = frequencies.map(array => {
           let object = {};
-        
           keys.forEach((key, i) => object[key] = array[i]);
-          
           return object;
         });
         resolve(objects);
@@ -292,9 +290,9 @@ function getLastCommit(username, repoName, numberOfCommits) {
   });
 }
 
-function sendToDb(username, freq) {
+function sendToDb(username, login, freq) {
   return new Promise(function (resolve, reject) {
-      fetch(`${bastUrl}/add`, {
+      fetch(`${baseUrl}/add`, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -302,6 +300,7 @@ function sendToDb(username, freq) {
         method: 'POST',
         body: {
           username: username,
+          userlogin : login,
           frequencies: [{
             name: 'test',
             frequency: freq
@@ -334,7 +333,7 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
-      sendToDb('test', 2).then(console.log('sent'));
+      sendToDb(user.name, user.login, frequencies).then(console.log('sent'));
 
     })
     .catch(err => {
