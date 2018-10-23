@@ -290,7 +290,7 @@ function getLastCommit(username, repoName, numberOfCommits) {
   });
 }
 
-function sendToDb(username, login, freq) {
+function addUserInDb(username, freq) {
   return new Promise(function (resolve, reject) {
     fetch(`${baseUrl}/add`, {
       headers: {
@@ -308,8 +308,40 @@ function sendToDb(username, login, freq) {
   });
 }
 
+function searchUserInDb(username) {
+  return new Promise(function (resolve, reject) {
+    fetch(`${baseUrl}/user`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        username: username
+      })
+    })
+      .then(res => res.json())
+      .catch(function (res) { console.log(res) })
+  });
+}
+
+function getAllGlobalFrequenciesInDb() {
+  return new Promise(function (resolve, reject) {
+    fetch(`${baseUrl}/frequencies`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
+    })
+      .then(res => res.json())
+      .catch(function (res) { console.log(res) })
+  });
+}
+
 function handleSearch(username, checkDB = true) {
   updatePlaceholder('Loading...');
+  searchUserInDb("The Octocat");
   return Promise.all([
     getUser(username),
     getFrequencyOfCommits(username),
@@ -329,7 +361,7 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
-      sendToDb(user.name, frequencies).then(console.log('sent'));
+      addUserInDb(user.name, frequencies).then(console.log('sent'));
 
     })
     .catch(err => {

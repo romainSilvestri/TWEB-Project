@@ -79,14 +79,37 @@ app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { /
 });
 
 app.post('/add', (req, res) => {
-  console.log('received');
-  const data = new DataModel(req.body);
-  data.save()
+  DataModel.findOneAndUpdate({username: req.body.username}, // find a document with that filter
+  new DataModel(req.body), // document to insert when nothing was found
+  {upsert: true, new: true, runValidators: true}, // options
+  )
     .then(item => {
       res.send('item saved to database');
     })
     .catch(err => {
-      res.status(400).send('unable to save to database');
+      res.status(400).send(err);
+    });
+});
+
+app.post('/user', (req, res) => {
+  DataModel.findOne({username: req.body.username})
+    .then(item => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(item));
+    })
+    .catch(err => {
+      res.send(err);
+    });
+});
+
+app.post('/frequencies', (req, res) => {
+  DataModel.find({_id : false, frequency: true})
+    .then(item => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(item));
+    })
+    .catch(err => {
+      res.send(err);
     });
 });
 
