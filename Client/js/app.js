@@ -320,7 +320,8 @@ function searchUserInDb(username) {
         username: username
       })
     })
-      .then(res => res.json())
+      .then(res => res.json()
+      .then(result => resolve(result)))
       .catch(function (res) { console.log(res) })
   });
 }
@@ -334,14 +335,47 @@ function getAllGlobalFrequenciesInDb() {
       },
       method: 'POST'
     })
-      .then(res => res.json())
+      .then(res => res.json()
+      .then(result => resolve(result)))
       .catch(function (res) { console.log(res) })
   });
 }
 
 function handleSearch(username, checkDB = true) {
   updatePlaceholder('Loading...');
-  searchUserInDb("The Octocat");
+  let isInDb = false;
+  searchUserInDb(username)
+  .then(result => {
+    if(result != null){
+      isInDb = true;
+    }
+  if(checkDB === true && isInDb === true){
+      return Promise.all([
+        getUser(username),
+        getGithubColors(),
+      ])
+        .then(([user, colors]) => {
+          updatePlaceholder('');
+          let frequencies = result.frequencies;
+          let labels = [];
+          let data = [];
+          frequencies.forEach(element => { labels.push(element.language) });
+          frequencies.forEach(element => { data.push(element.frequency) });
+          const backgroundColor = labels.map(label => {
+            const color = colors[label] ? colors[label].color : null
+            return color || '#000';
+          })
+    
+          updateProfile(user);
+          updateChart({ labels, data, backgroundColor });
+    
+        })
+        .catch(err => {
+          updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
+          console.error('Cannot fetch data', err)
+        })
+      }
+  else{
   return Promise.all([
     getUser(username),
     getFrequencyOfCommits(username),
@@ -361,13 +395,17 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
-      addUserInDb(user.name, frequencies).then(console.log('sent'));
+      addUserInDb(user.login, frequencies).then(console.log('sent'));
 
     })
     .catch(err => {
       updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
       console.error('Cannot fetch data', err)
     })
+  }
+  
+})
+.catch(err => console.log(err));
 }
 
 function setCheckDb(val) {
