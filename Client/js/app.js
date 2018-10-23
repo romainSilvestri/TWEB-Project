@@ -236,7 +236,7 @@ function getCommitsOfContributors(username, repoName) {
         }
         else {
           for (let i = 0; i < result.length; i++) {
-            if (result[i].author.login === username) {
+            if (result[i].author.login.toLowerCase() === username.toLowerCase()) {
               resolve(result[i].total);
             }
           }
@@ -342,9 +342,10 @@ function getAllGlobalFrequenciesInDb() {
 }
 
 function handleSearch(username, checkDB = true) {
+  console.log(checkDB);
   updatePlaceholder('Loading...');
   let isInDb = false;
-  searchUserInDb(username)
+  searchUserInDb(username.toLowerCase())
   .then(result => {
     if(result != null){
       isInDb = true;
@@ -395,7 +396,7 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
-      addUserInDb(user.login, frequencies).then(console.log('sent'));
+      addUserInDb(user.login.toLowerCase(), frequencies).then(console.log('sent'));
 
     })
     .catch(err => {
@@ -412,15 +413,22 @@ function setCheckDb(val) {
   searchForm.elements['checkDb'].value = val;
 }
 
-searchForm.addEventListener('click', function (e) {
+search.addEventListener('click', function (e) {
   e.preventDefault();
-  const username = this.elements['username'].value;
-  const checkDb = this.elements['checkDb'].value === "0" ? true : false;
-  console.log(checkDb);
+  const username = searchForm.elements['username'].value;
   if (!username) {
     return;
   }
-  handleSearch(username, checkDb);
+  handleSearch(username, true);
+});
+
+update.addEventListener('click', function (e) {
+  e.preventDefault();
+  const username = searchForm.elements['username'].value;
+  if (!username) {
+    return;
+  }
+  handleSearch(username, false);
 });
 
 handleSearch(defaultSearch);
