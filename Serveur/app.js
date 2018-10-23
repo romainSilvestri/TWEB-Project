@@ -79,10 +79,7 @@ app.get('/repos/:username/:repoName/stats/contributors', (req, res, next) => { /
 });
 
 app.post('/add', (req, res) => {
-  DataModel.findOneAndUpdate({username: req.body.username}, // find a document with that filter
-  new DataModel(req.body), // document to insert when nothing was found
-  {upsert: true, new: true, runValidators: true}, // options
-  )
+  DataModel.findOneAndUpdate({username: req.body.username}, new DataModel(req.body), {upsert: true, new: true, runValidators: true})
     .then(item => {
       res.send('item saved to database');
     })
