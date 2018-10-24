@@ -221,42 +221,32 @@ function averageFrequency(arr) {
   return retArray;
 }
 
-function getContributors(username, repoName) {
-  console.log(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=100`);
-  return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=100`)
-    .then(res => res.json());
-}
-
 function getCommitsOfContributors(username, repoName) {
-  return new Promise(function (resolve, reject) {
-    getPageOfContributors(username, repoName)
-      .then(result => {
+  return Promise.all([getPageOfContributors(username, repoName)])
+  .then(result => {
+      result = result[0];
         if (result.length === 0) {
-          resolve(0);
+          return (0);
         }
         else {
           for (let i = 0; i < result.length; i++) {
             if (result[i].author.login.toLowerCase() === username.toLowerCase()) {
-              resolve(result[i].total);
+              return (result[i].total);
             }
           }
-          resolve(0)
+          return (0);
         }
       });
-  });
 }
 
-function getPageOfContributors(username, repoName, pageNumber) {
-  return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?page=${pageNumber}&per_page=${100}`)
-    .then(res => res.json());
+function getPageOfContributors(username, repoName) {
+  return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=${100}`)
+    .then(res => { return res.json();});
 }
 
 
 function getNumberOfCommits(username, repoName) {
-  return new Promise(function (resolve, reject) {
-    getCommitsOfContributors(username, repoName)
-      .then(result => resolve(result));
-  });
+  return getCommitsOfContributors(username, repoName);
 }
 
 function getCommitsPage(username, repoName, pageNumber) {
@@ -342,7 +332,6 @@ function getAllGlobalFrequenciesInDb() {
 }
 
 function handleSearch(username, checkDB = true) {
-  console.log(checkDB);
   updatePlaceholder('Loading...');
   let isInDb = false;
   searchUserInDb(username.toLowerCase())
@@ -396,7 +385,7 @@ function handleSearch(username, checkDB = true) {
 
       updateProfile(user);
       updateChart({ labels, data, backgroundColor });
-      addUserInDb(user.login.toLowerCase(), frequencies).then(console.log('sent'));
+      addUserInDb(user.login.toLowerCase(), frequencies);
 
     })
     .catch(err => {
