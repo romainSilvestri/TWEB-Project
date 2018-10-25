@@ -100,7 +100,7 @@ app.post('/user', (req, res) => {
 });
 
 app.post('/frequencies', (req, res) => {
-  DataModel.find({_id : false, frequency: true})
+  DataModel.find({})
     .then(item => {
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(item));

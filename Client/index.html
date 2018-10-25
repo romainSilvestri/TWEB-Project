@@ -5,9 +5,9 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
     <head>
 	<!-- Step 1 - Including the fusioncharts core library -->
-    <script type="text/javascript" src="js/fusioncharts.js"></script>
+    <script type="text/javascript" src="/js/fusioncharts.js"></script>
     <!-- Step 2 - Including the fusion theme -->
-    <script type="text/javascript" src="js/themes/fusioncharts.theme.fusion.js"></script>
+    <script type="text/javascript" src="/js/themes/fusioncharts.theme.fusion.js"></script>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Frequencies calculator</title>
@@ -161,19 +161,11 @@
             
         </section>
 
-
-
-        <section id="pricingtop" class="pricingtop">
-            <div class="overlay">
-                <div class="container">
-                    <div class="main_pricingtop"></div>
-                </div> 
-            </div>
-        </section>
+        <br/>
+        <br/>
 
         <section id="pricing" class="pricing">
-            <div id="chart-container">
-            </div>
+                        <div id="chart-container"></div>
         </section><!-- End of Pricing Section -->
 
 
@@ -207,57 +199,52 @@
             </div> 
         </section>
 
-        <section id="service" class="service">
-            <div class="container">
-                <div class="row">
-                    <div class="main_service text-center">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="single_service wow fadeIn" data-wow-duration=".6s">
-                                <div class="single_service_icon icon_one">
-                                    <a href=""><i class="fa fa-flash"></i></a>
+        <section id="service"><div class="container">
+                        <br />
+                        <br />
+                        <br />
+                    
+                        <div class="panel-group" id="accordion">
+                            <div class="faqHeader">Frequently asked questions</div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">I used your app with my Github username and it didn't show anything on the chart. Why ?</a>
+                                    </h4>
                                 </div>
-                                <div class="single_service_deatels">
-                                    <h4>Fast Servers</h4>
-                                    <p>Nulla dapibus neque augue, quis tincidunt tortor aliquam vitae.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="single_service wow fadeIn" data-wow-duration="1.2s">
-                                <div class="single_service_icon icon_two">
-                                    <a href=""><i class="fa fa-skype"></i></a>
-                                </div>
-                                <div class="single_service_deatels">
-                                    <h4>Cloud Servers</h4>
-                                    <p>Nulla dapibus neque augue, quis tincidunt tortor aliquam vitae.</p>
+                                <div id="collapseOne" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                            The developers that built this app are not really good in Javascript. This may be a known bug that wasn't resolve. To get your stats, you should click on the update button. 
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="single_service wow fadeIn" data-wow-duration="1.7s">
-                                <div class="single_service_icon icon_three">
-                                    <a href=""><i class="fa fa-arrows"></i></a>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTen">I just clicked on the update button and still nothing. This app is really bad. Why can't I get my stats ? </a>
+                                    </h4>
                                 </div>
-                                <div class="single_service_deatels">
-                                    <h4>Domain Transfer</h4>
-                                    <p>Nulla dapibus neque augue, quis tincidunt tortor aliquam vitae.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="single_service wow fadeIn" data-wow-duration="2s">
-                                <div class="single_service_icon icon_four">
-                                    <a href=""><i class="fa fa-comments"></i></a>
-                                </div>
-                                <div class="single_service_deatels">
-                                    <h4>Live Support</h4>
-                                    <p>Nulla dapibus neque augue, quis tincidunt tortor aliquam vitae.</p>
+                                <div id="collapseTen" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                            This app only take the repositories that are on your Github page, so if you have committed on other repositories, your stats won't be updated. If you don't have any stats, that means that you have no eligible repository on your personal Github page. 
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseEleven">I just created a Github account and I committed 14 times in 7m53s in a python repository that is ON MY PERSONAL GITHUB PAGE. 
+                                            I should have a frequency of 2557,293868921776 commits/days and I should be first on the leader board. Why I don't have any stats on my account ?????? </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseEleven" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        To prevent from cheater and to preserve good statistics, only the repositories where your first and last commits are separated by at least 1 days are considered.
+                                    </div>
+                                </div>
+                            </div>
+                    
                     </div>
-                </div>
-            </div>
         </section><!-- End of service Section -->
 
 
@@ -336,22 +323,6 @@
                 
             </div>
         </section><!-- End of footer3 section -->
-		
-		<footer id="coppyrights" class="coppyrights">
-			<div class="container-fluid">
-			<div class="row">
-				<div class="coppyright">
-					<p class="wow fadeInUp" data-wow-duration="2s">Made with <i class="fa fa-heart"></i> by <strong><a href="http://bootstrapthemes.co">Bootstrap Themes</a></strong> 2016. All Rights Reserved</p>
-				</div>
-			</div>
-			</div>
-		</footer>
-
-
-
-
-
-
         <!-- STRAT SCROLL TO TOP -->
 
         <div class="scrollup">
@@ -365,6 +336,7 @@
         <script src="assets/js/plugins.js"></script>
         <script src="assets/js/main.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+        
         
 
     </body>

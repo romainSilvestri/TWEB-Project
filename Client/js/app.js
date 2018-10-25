@@ -28,6 +28,7 @@ function getGithubColors() {
 function updateChart({ labels, data, backgroundColor }) {
   const chartLanguages = document.getElementById('chart-frequencies');
   const ctx = chartLanguages.getContext('2d');
+  const globalFrequency = data[0];
   ctx.responsive = true;
   ctx.maintainAspectRatio = false;
   const options = {
@@ -75,6 +76,97 @@ function updateChart({ labels, data, backgroundColor }) {
     chart.data.datasets = options.data.datasets;
     chart.update();
   }
+
+  getRank(globalFrequency)
+  .then(value => {
+    const dataSource = {
+      "chart": {
+        "caption": "Your rank",
+        "lowerlimit": "0",
+        "upperlimit": "100",
+        "showvalue": "1",
+        "numbersuffix": "%",
+        "theme": "fusion",
+        "showtooltip": "0"
+      },
+      "colorrange": {
+        "color": [
+          {
+            "minvalue": "0",
+            "maxvalue": "25",
+            "code": "#F2726F"
+          },
+          {
+            "minvalue": "25",
+            "maxvalue": "50",
+            "code": "#FF8040"
+          },
+          {
+            "minvalue": "50",
+            "maxvalue": "75",
+            "code": "#FFC533"
+          },
+          {
+            "minvalue": "75",
+            "maxvalue": "100",
+            "code": "#62B58F"
+          }
+        ]
+      },
+      "dials": {
+        "dial": [
+          {
+            "value": value
+          }
+        ]
+      }
+    };
+    
+    FusionCharts.ready(function() {
+       var myChart = new FusionCharts({
+          type: "angulargauge",
+          renderAt: "chart-container",
+          width: "100%",
+          height: "100%",
+          dataFormat: "json",
+          dataSource
+       }).render();
+    });
+})
+
+}
+
+function getRank(frequency){
+  return getAllGlobalFrequenciesInDb()
+  .then(result => {
+    let rank = 0;
+    if (result.length === 0){
+      return [100, 1];
+    }
+    else{
+      let frequencies = []
+      result.forEach(element => {
+        if(element.frequencies != null){
+          frequencies.push(element.frequencies[0].frequency)
+        }
+      })
+      frequencies.sort(function(a, b){return a - b});
+      console.log(frequencies);
+      let index = 0
+      while(frequencies[index] < frequency && index < frequencies.length){
+        index++;
+      }
+      console.log(index);
+      rank = index * 100 / frequencies.length
+      return rank;
+
+    }
+    console.log(result)
+    console.log(result.length)
+    console.log(result[0])
+    return 0;
+
+  })
 }
 
 function updateProfile(user) {
@@ -278,8 +370,7 @@ function getLastCommit(username, repoName, numberOfCommits) {
 }
 
 function addUserInDb(username, freq) {
-  return new Promise(function (resolve, reject) {
-    fetch(`${baseUrl}/add`, {
+  return fetch(`${baseUrl}/add`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -292,12 +383,10 @@ function addUserInDb(username, freq) {
     })
       .then(function (res) { console.log(res) })
       .catch(function (res) { console.log(res) })
-  });
 }
 
 function searchUserInDb(username) {
-  return new Promise(function (resolve, reject) {
-    fetch(`${baseUrl}/user`, {
+  return fetch(`${baseUrl}/user`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -307,25 +396,20 @@ function searchUserInDb(username) {
         username: username
       })
     })
-      .then(res => res.json()
-        .then(result => resolve(result)))
+      .then(res => res.json())
       .catch(function (res) { console.log(res) })
-  });
 }
 
 function getAllGlobalFrequenciesInDb() {
-  return new Promise(function (resolve, reject) {
-    fetch(`${baseUrl}/frequencies`, {
+  return fetch(`${baseUrl}/frequencies`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: 'POST'
     })
-      .then(res => res.json()
-        .then(result => resolve(result)))
+      .then(res => res.json())
       .catch(function (res) { console.log(res) })
-  });
 }
 
 function handleSearch(username, checkDB = true) {
@@ -381,64 +465,16 @@ function handleSearch(username, checkDB = true) {
             })
 
             updateProfile(user);
-            updateChart({ labels, data, backgroundColor });
-            addUserInDb(user.login.toLowerCase(), frequencies);
-
+            addUserInDb(user.login.toLowerCase(), frequencies)
+            .then(updateChart({ labels, data, backgroundColor })
+          
+          );
           })
           .catch(err => {
             updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
             console.error('Cannot fetch data', err)
           })
       }
-
-      const dataSource = {
-        "chart": {
-          "caption": "Nordstorm's Customer Satisfaction Score for 2017",
-          "lowerlimit": "0",
-          "upperlimit": "100",
-          "showvalue": "1",
-          "numbersuffix": "%",
-          "theme": "fusion",
-          "showtooltip": "0"
-        },
-        "colorrange": {
-          "color": [
-            {
-              "minvalue": "0",
-              "maxvalue": "50",
-              "code": "#F2726F"
-            },
-            {
-              "minvalue": "50",
-              "maxvalue": "75",
-              "code": "#FFC533"
-            },
-            {
-              "minvalue": "75",
-              "maxvalue": "100",
-              "code": "#62B58F"
-            }
-          ]
-        },
-        "dials": {
-          "dial": [
-            {
-              "value": "81"
-            }
-          ]
-        }
-      };
-      
-      FusionCharts.ready(function() {
-         var myChart = new FusionCharts({
-            type: "angulargauge",
-            renderAt: "chart-container",
-            width: "100%",
-            height: "100%",
-            dataFormat: "json",
-            dataSource
-         }).render();
-      });
     })
     .catch(err => console.log(err));
 }
