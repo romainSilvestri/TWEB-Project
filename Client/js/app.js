@@ -95,21 +95,19 @@ function updatePlaceholder(content, className = 'text-secondary') {
 
 //TEST, get all the repos
 function getAllRepos(username, resultArr, pageNumber = 1) {
-  return new Promise(function (resolve, reject) {
-    getPageOfRepos(username, pageNumber)
+  return getPageOfRepos(username, pageNumber)
       .then(result => {
         if (result.length === 0) {
-          resolve(resultArr);
+          return resultArr;
         }
         else if (result.length < 100) {
-          resolve(resultArr.concat(result));
+          return resultArr.concat(result);
         }
         else {
           resultArr = resultArr.concat(result);
-          resolve(getAllRepos(username, resultArr, pageNumber + 1));
+          return getAllRepos(username, resultArr, pageNumber + 1);
         }
       });
-  });
 }
 
 function getPageOfRepos(username, pageNumber) {
@@ -221,32 +219,31 @@ function averageFrequency(arr) {
   return retArray;
 }
 
-function getCommitsOfContributors(username, repoName) {
-  return Promise.all([getPageOfContributors(username, repoName)])
-  .then(result => {
-      result = result[0];
-        if (result.length === 0) {
-          return (0);
-        }
-        else {
-          for (let i = 0; i < result.length; i++) {
-            if (result[i].author.login.toLowerCase() === username.toLowerCase()) {
-              return (result[i].total);
-            }
-          }
-          return (0);
-        }
-      });
-}
-
 function getPageOfContributors(username, repoName) {
   return fetch(`${baseUrl}/repos/${username}/${repoName}/stats/contributors?per_page=${100}`)
-    .then(res => { return res.json();});
+    .then(res => res.json())
 }
 
 
 function getNumberOfCommits(username, repoName) {
-  return getCommitsOfContributors(username, repoName);
+  return getPageOfContributors(username, repoName)
+    .then(result => {
+      console.log(result);
+      if (result.length === 0) {
+        return 0;
+      }
+      else {
+        for (let i = 0; i < result.length; i++) {
+          if (result[i].author) {
+          if (result[i].author.login.toLowerCase() === username.toLowerCase()) {
+            return (result[i].total);
+          }
+        }
+      }
+      return 0;
+    }
+      })
+      .catch(err => console.log(err));
 }
 
 function getCommitsPage(username, repoName, pageNumber) {
@@ -311,7 +308,7 @@ function searchUserInDb(username) {
       })
     })
       .then(res => res.json()
-      .then(result => resolve(result)))
+        .then(result => resolve(result)))
       .catch(function (res) { console.log(res) })
   });
 }
@@ -326,7 +323,7 @@ function getAllGlobalFrequenciesInDb() {
       method: 'POST'
     })
       .then(res => res.json()
-      .then(result => resolve(result)))
+        .then(result => resolve(result)))
       .catch(function (res) { console.log(res) })
   });
 }
@@ -335,67 +332,115 @@ function handleSearch(username, checkDB = true) {
   updatePlaceholder('Loading...');
   let isInDb = false;
   searchUserInDb(username.toLowerCase())
-  .then(result => {
-    if(result != null){
-      isInDb = true;
-    }
-  if(checkDB === true && isInDb === true){
-      return Promise.all([
-        getUser(username),
-        getGithubColors(),
-      ])
-        .then(([user, colors]) => {
-          updatePlaceholder('');
-          let frequencies = result.frequencies;
-          let labels = [];
-          let data = [];
-          frequencies.forEach(element => { labels.push(element.language) });
-          frequencies.forEach(element => { data.push(element.frequency) });
-          const backgroundColor = labels.map(label => {
-            const color = colors[label] ? colors[label].color : null
-            return color || '#000';
-          })
-    
-          updateProfile(user);
-          updateChart({ labels, data, backgroundColor });
-    
-        })
-        .catch(err => {
-          updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
-          console.error('Cannot fetch data', err)
-        })
+    .then(result => {
+      if (result != null) {
+        isInDb = true;
       }
-  else{
-  return Promise.all([
-    getUser(username),
-    getFrequencyOfCommits(username),
-    getGithubColors(),
-  ])
-    .then(([user, frequencies, colors]) => {
-      updatePlaceholder('');
+      if (checkDB === true && isInDb === true) {
+        Promise.all([
+          getUser(username),
+          getGithubColors(),
+        ])
+          .then(([user, colors]) => {
+            updatePlaceholder('');
+            let frequencies = result.frequencies;
+            let labels = [];
+            let data = [];
+            frequencies.forEach(element => { labels.push(element.language) });
+            frequencies.forEach(element => { data.push(element.frequency) });
+            const backgroundColor = labels.map(label => {
+              const color = colors[label] ? colors[label].color : null
+              return color || '#000';
+            })
 
-      let labels = [];
-      let data = [];
-      frequencies.forEach(element => { labels.push(element.language) });
-      frequencies.forEach(element => { data.push(element.frequency) });
-      const backgroundColor = labels.map(label => {
-        const color = colors[label] ? colors[label].color : null
-        return color || '#000';
-      })
+            updateProfile(user);
+            updateChart({ labels, data, backgroundColor });
 
-      updateProfile(user);
-      updateChart({ labels, data, backgroundColor });
-      addUserInDb(user.login.toLowerCase(), frequencies);
+          })
+          .catch(err => {
+            updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
+            console.error('Cannot fetch data', err)
+          })
+      }
+      else {
+        Promise.all([
+          getUser(username),
+          getFrequencyOfCommits(username),
+          getGithubColors(),
+        ])
+          .then(([user, frequencies, colors]) => {
+            updatePlaceholder('');
 
+            let labels = [];
+            let data = [];
+            frequencies.forEach(element => { labels.push(element.language) });
+            frequencies.forEach(element => { data.push(element.frequency) });
+            const backgroundColor = labels.map(label => {
+              const color = colors[label] ? colors[label].color : null
+              return color || '#000';
+            })
+
+            updateProfile(user);
+            updateChart({ labels, data, backgroundColor });
+            addUserInDb(user.login.toLowerCase(), frequencies);
+
+          })
+          .catch(err => {
+            updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
+            console.error('Cannot fetch data', err)
+          })
+      }
+
+      const dataSource = {
+        "chart": {
+          "caption": "Nordstorm's Customer Satisfaction Score for 2017",
+          "lowerlimit": "0",
+          "upperlimit": "100",
+          "showvalue": "1",
+          "numbersuffix": "%",
+          "theme": "fusion",
+          "showtooltip": "0"
+        },
+        "colorrange": {
+          "color": [
+            {
+              "minvalue": "0",
+              "maxvalue": "50",
+              "code": "#F2726F"
+            },
+            {
+              "minvalue": "50",
+              "maxvalue": "75",
+              "code": "#FFC533"
+            },
+            {
+              "minvalue": "75",
+              "maxvalue": "100",
+              "code": "#62B58F"
+            }
+          ]
+        },
+        "dials": {
+          "dial": [
+            {
+              "value": "81"
+            }
+          ]
+        }
+      };
+      
+      FusionCharts.ready(function() {
+         var myChart = new FusionCharts({
+            type: "angulargauge",
+            renderAt: "chart-container",
+            width: "100%",
+            height: "100%",
+            dataFormat: "json",
+            dataSource
+         }).render();
+      });
     })
-    .catch(err => {
-      updatePlaceholder('Oups, an error occured. Sorry, this app sucks...', 'text-error');
-      console.error('Cannot fetch data', err)
-    })
-  }
-  
-})
-.catch(err => console.log(err));
+    .catch(err => console.log(err));
 }
 
 function setCheckDb(val) {

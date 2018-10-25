@@ -54,7 +54,7 @@ class Github {
 
   //contributors doesn't support pagination, this will only return the first 100 contributors
   contributors(username, repoName) {
-    return this.request(`/repos/${username}/${repoName}/stats/contributors`)
+    return this.request(`/repos/${username}/${repoName}/stats/contributors?per_page=100`)
   }
 
   repoLanguages(repoName) {
