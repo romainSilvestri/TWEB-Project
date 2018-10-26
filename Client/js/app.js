@@ -126,8 +126,8 @@ function updateChart({ labels, data, backgroundColor }) {
        var myChart = new FusionCharts({
           type: "angulargauge",
           renderAt: "chart-container",
-          width: "100%",
-          height: "100%",
+          width: "80%",
+          height: "20%",
           dataFormat: "json",
           dataSource
        }).render();
