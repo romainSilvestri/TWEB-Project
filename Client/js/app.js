@@ -8,6 +8,9 @@ const defaultSearch = 'octocat';
 const searchForm = document.getElementById('search-form');
 const search = document.getElementById('search');
 const update = document.getElementById('update');
+const pourcentageCommit = document.getElementById('pourcentageCommit');
+const rankTitle = document.getElementById('rankTitle');
+const descRank = document.getElementById('descRank');
 let chart = null;
 
 function getUser(username) {
@@ -25,60 +28,42 @@ function getGithubColors() {
     .then(res => res.json());
 }
 
-function updateChart({ labels, data, backgroundColor }) {
-  const chartLanguages = document.getElementById('chart-frequencies');
-  const ctx = chartLanguages.getContext('2d');
+function updateChart({ labels, data, backgroundColor, frequencies }) {
   const globalFrequency = data[0];
-  ctx.responsive = true;
-  ctx.maintainAspectRatio = false;
-  const options = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor,
-      }],
-    },
-    options: {
-      title: {
-        display: true,
-        fontColor: 'black',
-        fontSize: 30,
-        text: 'Commits/day depending on the language'
-      },
-      legend: {
-        display: false
-      },
-      scales: {
-        xAxes: [{
-          ticks: {
-            fontFamily: "'Roboto Mono'",
-            fontSize: 12,
-          },
-          gridLines: {
-            display: false,
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            fontFamily: "'Roboto Mono'",
-          }
-        }]
-      },
-    }
-  }
 
-  if (!chart) {
-    chart = new Chart(ctx, options);
-  } else {
-    chart.data.labels = options.data.labels;
-    chart.data.datasets = options.data.datasets;
-    chart.update();
-  }
+  let dataCharts = [];
+  let i = 0;
+  frequencies.forEach(element => {
+    dataCharts.push({"label": element.language, "value":element.frequency, "color": backgroundColor[i]});
+    i++;
+  })
+
+  const dataSource = {
+    "chart": {
+      "caption": "Commits/day depending on the language",
+      "xaxisname": "language",
+      "yaxisname": "frequency of commits",
+      "numbersuffix": "",
+      "theme": "fusion",
+      "bgColor": "#F6FEFE"
+    },
+    "data": dataCharts
+  };
+  
+  FusionCharts.ready(function() {
+     var myChart = new FusionCharts({
+        type: "column2d",
+        renderAt: "commits frequency",
+        width: "100%",
+        height: "100%",
+        dataFormat: "json",
+        dataSource
+     }).render();
+  });
 
   getRank(globalFrequency)
   .then(value => {
+    value[0] = Math.floor(value[0] * 100) / 100
     const dataSource = {
       "chart": {
         "caption": "Your rank",
@@ -87,7 +72,8 @@ function updateChart({ labels, data, backgroundColor }) {
         "showvalue": "1",
         "numbersuffix": "%",
         "theme": "fusion",
-        "showtooltip": "0"
+        "showtooltip": "0",
+        "bgColor": "#F6FEFE"
       },
       "colorrange": {
         "color": [
@@ -116,7 +102,7 @@ function updateChart({ labels, data, backgroundColor }) {
       "dials": {
         "dial": [
           {
-            "value": value
+            "value": value[0]
           }
         ]
       }
@@ -126,12 +112,46 @@ function updateChart({ labels, data, backgroundColor }) {
        var myChart = new FusionCharts({
           type: "angulargauge",
           renderAt: "chart-container",
-          width: "80%",
+          width: "50%",
           height: "20%",
           dataFormat: "json",
           dataSource
        }).render();
     });
+    pourcentageCommit.innerHTML = `You are committing more frequently than ${value[0]} % of the people that used this app`;
+    let title = "Your rank : ";
+    let description;
+    if(value[0] === 0){
+      title = title.concat("The useless")
+      description = "Well, that not really good to be the last. Are you using git ? Are you even alive ? \
+      You really need to commit more or other people won't work with you again."
+    }
+    else if(value[0] < 25){
+      title = title.concat("Git Neophyte")      
+      description = "You are way below average. You really need to understand what is github. Just keep trying and you may progress toward the top"
+    }
+    else if(value[0] < 50){
+      title = title.concat("Git Junior Adept")
+      description = "You are bellow average but it could be worst. You have just to commit more often when you work on project but it seems that you understand the principle of Github"
+    }
+    else if(value[0] < 75){
+      title = title.concat("Git Royal administrator")
+      description = "You are beyong average, that's GREAT. You know what you do and you work efficiently. Just keep going."
+    }
+    else if(value[0] < 100){
+      title = title.concat("Git Master")
+      description = "You are part of the top Github user. People that work with you doesn't have time to ask you if you have push, your team almost have a live view of your project. \
+      Let's just hope that those stats are not boosted by some rush in projects..."
+    }
+    else{
+      title = title.concat("The Almighty")
+      description = "You are THE ONE. Nobody commit more than you, Congratulation !"
+    }
+    rankTitle.innerHTML = title;
+    if(value[1] < 10){
+      description = description.concat("<br/><br/>* You shouldn't take this result really seriously, less than 10 people are currently registered in the database.<br/>Tell your friends to use this app as well so the stats will be better !");
+    }
+    descRank.innerHTML = description;
 })
 
 }
@@ -151,20 +171,14 @@ function getRank(frequency){
         }
       })
       frequencies.sort(function(a, b){return a - b});
-      console.log(frequencies);
       let index = 0
-      while(frequencies[index] < frequency && index < frequencies.length){
+      while(frequencies[index] <= frequency && index < frequencies.length){
         index++;
       }
-      console.log(index);
       rank = index * 100 / frequencies.length
-      return rank;
+      return [rank, frequencies.length];
 
     }
-    console.log(result)
-    console.log(result.length)
-    console.log(result[0])
-    return 0;
 
   })
 }
@@ -320,7 +334,6 @@ function getPageOfContributors(username, repoName) {
 function getNumberOfCommits(username, repoName) {
   return getPageOfContributors(username, repoName)
     .then(result => {
-      console.log(result);
       if (result.length === 0) {
         return 0;
       }
@@ -438,7 +451,7 @@ function handleSearch(username, checkDB = true) {
             })
 
             updateProfile(user);
-            updateChart({ labels, data, backgroundColor });
+            updateChart({ labels, data, backgroundColor, frequencies});
 
           })
           .catch(err => {
@@ -466,7 +479,7 @@ function handleSearch(username, checkDB = true) {
 
             updateProfile(user);
             addUserInDb(user.login.toLowerCase(), frequencies)
-            .then(updateChart({ labels, data, backgroundColor })
+            .then(updateChart({ labels, data, backgroundColor, frequencies })
           
           );
           })

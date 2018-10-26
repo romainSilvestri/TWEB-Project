@@ -562,7 +562,7 @@ input:-ms-input-placeholder {
 
 /* Home Section */
 .home{
-    background: url(../images/homebg.jpg) no-repeat 100% 100%;
+    background: url(../images/homebg.jpg) repeat 100% 100%;
     text-align: center;
 }
 
@@ -628,24 +628,32 @@ input:-ms-input-placeholder {
     transform: skewX(20deg);
 }
 
+
 /* domainsearce section */
 .domainsearce{
-    padding: 80px 0px;
-    background: #c7f6fc;
+    width:100%;
+    overflow: hidden;
+    padding: 80px 0px; 
+    background-image: linear-gradient(black, #F6FEFE);
 }
 
 .rounded-circle {
     border-radius: 50% !important;
 }
 
-.row {
-    width: 100%;
-    /*margin: 0 auto;*/
-      text-align: center;
-      display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
+.table {
+    table-layout: fixed;
+    border-top : 0 none;
+    height: 750px
+}
+
+.td {
+    border-top : 0 none;
+}
+
+.tr {
+    border : 0 none;
+}
 
   .div_center {
     align-items: center;
@@ -653,7 +661,8 @@ input:-ms-input-placeholder {
     justify-content: center;
     flex-direction: column;
 	
-	margin: auto;
+    margin: auto;
+    margin-top: 5em
   }
 
   .block {
@@ -670,8 +679,6 @@ input:-ms-input-placeholder {
     display: block
 }
 
-.main_somainsearrce{}
-.main_somainsearrce{}
 .head_title{
     margin-bottom: 40px;
 }
@@ -749,10 +756,15 @@ input:-ms-input-placeholder {
     display:none;
 }
 
-
+.pricing{
+    background-color: #F6FEFE
+}
 
 /* faq */
 
+.faq {
+    background-image: linear-gradient(white, #2a2a2a);
+}
 .faqHeader {
     font-size: 27px;
     margin: 20px;
