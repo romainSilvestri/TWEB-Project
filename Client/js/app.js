@@ -376,31 +376,31 @@ function updateChart({ backgroundColor, frequencies }) {
           dataSource,
         }).render();
       });
-      pourcentageCommit.innerHTML = `You are committing more frequently than ${value[0]} % of the people that used this app`;
+      pourcentageCommit.innerHTML = `You are committing more frequently than ${value} % of the people that used this app`;
       let title = 'Your rank : ';
       let description;
       if (value === 0) {
-        title = title.concat('The useless');
+        title = title.concat('<strong>The useless</strong>');
         description = "Well, that not really good to be the last. Are you using git ? Are you even alive ?<br/>You really need to commit more or other people won't work with you again.";
       } else if (value < 25) {
-        title = title.concat('Git Neophyte');
+        title = title.concat('<strong>Git Neophyte</strong>');
         description = 'You are way below average. You really need to understand what is github. Just keep trying and you may progress toward the top';
       } else if (value < 50) {
-        title = title.concat('Git Junior Adept');
+        title = title.concat('<strong>Git Junior Adept</strong>');
         description = 'You are bellow average but it could be worst. You have just to commit more often when you work on project but it seems that you understand the principle of Github';
       } else if (value < 75) {
-        title = title.concat('Git Royal administrator');
+        title = title.concat('<strong>Git Royal administrator</strong>');
         description = "You are beyong average, that's GREAT. You know what you do and you work efficiently. Just keep going.";
       } else if (value < 100) {
-        title = title.concat('Git Master');
+        title = title.concat('<strong>Git Master</strong>');
         description = "You are part of the top Github user. People that work with you doesn't have time to ask you if you have push, your team almost have a live view of your project.<br/>Let's just hope that those stats are not boosted by some rush in projects...";
       } else {
-        title = title.concat('The Almighty');
+        title = title.concat('<strong>The Almighty</strong>');
         description = 'You are THE ONE. Nobody commit more than you, Congratulation !';
       }
       rankTitle.innerHTML = title;
       if (result[1] < 10) {
-        description = description.concat("<br/><br/>* You shouldn't take this result really seriously, less than 10 people are currently registered in the database.<br/>Tell your friends to use this app as well so the stats will be better !");
+        description = description.concat("<br/><br/><br/>* You shouldn't take this result really seriously, less than 10 people are currently registered in the database.<br/>Tell your friends to use this app as well so the stats will be better !");
       }
       descRank.innerHTML = description;
     });
