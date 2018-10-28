@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "Github analytics client",
   "scripts": {
-    "start": "live-server --host=localhost"
+    "start": "linter.sh && cat loglint && live-server --host=localhost"
   },
-  "author": "paulnta",
+  "author": "Olivier Kopp, Romain Silvestri",
   "license": "ISC",
   "devDependencies": {
-    "live-server": "^1.2.0"
-  }
+    "chai": "^4.2.0",
+    "live-server": "^1.2.0",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {}
 }

@@ -66,6 +66,9 @@ function getAllGlobalFrequenciesInDb() {
     });
 }
 
+
+
+
 function getUser(username) {
   return fetch(`${baseUrl}/users/${username}`)
     .then(res => res.json());
